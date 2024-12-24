@@ -1,6 +1,11 @@
 import { useState } from "react";
 
-const AddTodo = () => {
+
+interface AddTodoProps {
+  onAdd: () => void;
+}
+
+const AddTodo: React.FC<AddTodoProps> = ({ onAdd }) => {
   const [title, setTitle] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -11,19 +16,19 @@ const AddTodo = () => {
       return;
     }
 
-    // API に新しい TODO を送信
     const response = await fetch("/api/todos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title }), // 新しい TODO の title を送信
+      body: JSON.stringify({ title }),
     });
 
     if (response.ok) {
       const newTodo = await response.json();
       console.log("New todo added:", newTodo);
-      setTitle(""); // フォームをクリア
+      setTitle("");
+      onAdd();
     } else {
       console.error("Failed to add todo");
     }

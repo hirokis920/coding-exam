@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 
 interface Todo {
-  id: number;
+  id: string;
   title: string;
   completed: boolean;
 }
@@ -22,19 +22,32 @@ export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
-    const fetchTodos = async () => {
-      const response = await fetch('/api/todos');
-      if(response.ok){
-        const data = await response.json();
-        setTodos(data);
-      } else {
-        console.error("Failed to fetch todos")
-      }
-    };
-
     fetchTodos();
-    console.log(todos)
   }, []);
+
+  const fetchTodos = async () => {
+    const response = await fetch('/api/todos');
+    if(response.ok){
+      const data = await response.json();
+      setTodos(data);
+    } else {
+      console.error("Failed to fetch todos")
+    }
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodos(todos.map((todo) => {
+      if(todo.id === event.target.id){
+        return  {
+          ...todo,
+          completed: !todo.completed
+        }
+      } else {
+        return todo;
+      }
+    }
+    ));
+  };
 
   // ①　DBからデータをとってくる
   // ②　表示する
@@ -48,7 +61,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div>
-        <AddTodo/>
+        <AddTodo onAdd={fetchTodos}/>
       
       {todos.length === 0 ? (
         <p>タスクなし</p>
@@ -66,7 +79,7 @@ export default function Home() {
               <tr key={row.id}>
                 <td>{row.id}</td>
                 <td>{row.title}</td>
-                <td>{row.completed}</td>
+                <td><input id={row.id} type="checkbox" checked={row.completed} onChange={handleCheckboxChange}/></td>
               </tr>
             ))}
           </tbody>
