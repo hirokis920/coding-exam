@@ -53,15 +53,14 @@ interface Todo {
 // 4. タスクを完了 ↔ 未完了にすることができる。
 // 以下のような操作でタスクを完了 ↔ 未完了が切り替えできるできるようにして
 // ください。
-// 1. ⼀覧表⽰しているタスクの『完了』チェックボックス
+// 1. ⼀覧表⽰しているタスクの『完了』チェックボックス OK
 // a. チェックを⼊れると
-// i. 完了タスクとして API リクエストを送信。
-// b. チェック済み状態でチェックを外すと
-// i. 未完了タスクとして API リクエストを送信。
-// 2. API リクエストに失敗した場合
-// a. トーストで失敗した旨を表⽰すること。
-// b. 完了状態は元に戻してください。（例：未完了 → 完了へ失敗した場合
-// は、未完了のまま）
+// i. 完了タスクとして API リクエストを送信。 OK
+// b. チェック済み状態でチェックを外すと     OK
+// i. 未完了タスクとして API リクエストを送信。 OK
+// 2. API リクエストに失敗した場合 OK
+// a. トーストで失敗した旨を表⽰すること。 OK
+// b. 完了状態は元に戻してください。（例：未完了 → 完了へ失敗した場合は、未完了のまま） OK
 // 5. タスクを削除することができる。
 // 1. ⼀覧表⽰している各タスクの末尾に『削除』ボタンを追加。
 // 2. 『削除』ボタンをクリックすると、該当のタスクが削除され、削除した旨を
@@ -92,6 +91,11 @@ export default function Home() {
     setOpen(true); 
   };
 
+  const handleTaskDelete = () => {
+    setMessage('削除しました'); 
+    setOpen(true); 
+  };
+
 
   const handleClose = () => {
     setOpen(false);
@@ -112,19 +116,52 @@ export default function Home() {
     }
   };
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTodos(todos.map((todo) => {
-      if(todo.id == event.target.id){
-        return  {
-          ...todo,
-          completed: !todo.completed
-        }
-      } else {
-        return todo;
-      }
+  const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+
+    event.preventDefault();
+
+    setLoading(true);
+
+    const response = await fetch("/api/todos/" + event.target.id, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ completed: event.target.checked }),
+    });
+
+    if (response.ok) {
+      const newTodo = await response.json();
+      setLoading(false);
+      handleTaskSuccess();
+      fetchTodos();
+    } else {
+      setLoading(false);
+      handleTaskError();
     }
-    ));
   };
+
+  const handleDelete = async (id:string) => {
+
+    setLoading(true);
+
+    const response = await fetch("/api/todos/" + id, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      setLoading(false);
+      handleTaskDelete();
+      fetchTodos();
+    } else {
+      setLoading(false);
+      handleTaskError();
+    }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,7 +272,8 @@ export default function Home() {
               <th>ID</th>
               <th>タイトル</th>
               <th>完了</th>
-              <th></th>
+              <th>編集</th>
+              <th>削除</th>
             </tr>
           </thead>
           <tbody>
@@ -245,6 +283,7 @@ export default function Home() {
                 <td>{row.title}</td>
                 <td><input id={row.id} type="checkbox" checked={row.completed} onChange={handleCheckboxChange}/></td>
                 <td className="centered"><Button onClick={() =>openEditModal(row.id,row.title)}>編集</Button></td>
+                <td className="centered"><Button onClick={() => handleDelete(row.id)}>削除</Button></td>
               </tr>
             ))}
           </tbody>
