@@ -152,3 +152,43 @@ caption {
   color: #444;
   text-align: center;
 }
+
+dialog {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* 各要素間の余白 */
+}
+
+form button {
+  margin-top: 10px; /* ボタン間の余白を追加 */
+}
+
+form button:disabled {
+  background-color: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.centered {
+  text-align: center;
+}

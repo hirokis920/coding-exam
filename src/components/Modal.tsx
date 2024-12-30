@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 
 
-interface AddTodoProps {
-  onAdd: () => void;
+interface ModalProps {
+  onCancel: () => void;
+  dialogRef: React.Ref<HTMLDialogElement>;
 }
 
-const AddTodo: React.FC<AddTodoProps> = ({ onAdd }) => {
+const Modal: React.FC<ModalProps> = ({ onCancel, dialogRef }) => {
   const [title, setTitle] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,24 +29,25 @@ const AddTodo: React.FC<AddTodoProps> = ({ onAdd }) => {
       const newTodo = await response.json();
       console.log("New todo added:", newTodo);
       setTitle("");
-      onAdd();
     } else {
       console.error("Failed to add todo");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Add Todo</h2>
-      <input
-        type="text"
+    <div>
+    <dialog ref={dialogRef}>
+      <form onSubmit={handleSubmit}>
+        <label>タイトル</label>
+        <input type="text"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter todo title"
-      />
-      <button type="submit">Add</button>
-    </form>
+        onChange={(e) => setTitle(e.target.value)} />
+        <button disabled={title.length === 0}>作成</button>
+        <button type="button" onClick={onCancel}>キャンセル</button>
+      </form>
+    </dialog>
+  </div>
   );
 };
 
-export default AddTodo;
+export default Modal;
